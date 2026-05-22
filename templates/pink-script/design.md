@@ -576,6 +576,56 @@ The system targets a **fixed 1920×1080 canvas** rendered inside a `<deck-stage>
 ### Print Behavior
 Print export depends on the deck-stage component's print handling. The pink halo text-shadow and the film-grain overlay may render inconsistently in PDF export — test before assuming visual parity.
 
+## CJK & International Content
+
+### Recommended Chinese Pairing
+
+| Role | Latin face | Chinese face | Weight |
+|---|---|---|---|
+| Script / display (DM Serif Display, all sizes) | DM Serif Display | 站酷小薇体 ZCOOL XiaoWei | 400 (only weight available) |
+| Body (Inter 300) | Inter | Noto Serif SC (思源宋体) | 400 |
+| Label / runner (JetBrains Mono UPPERCASE tracked) | JetBrains Mono | Noto Sans SC | 400 (do not force monospace on CJK) |
+
+### Mixed-Content Strategy
+
+Strategy A — extend each token's `fontFamily` to include the Chinese face after the Latin face. DM Serif Display tokens become `"DM Serif Display, ZCOOL XiaoWei, serif"`; Inter body tokens become `"Inter, Noto Serif SC, system-ui, sans-serif"`; JetBrains Mono tokens become `"JetBrains Mono, Noto Sans SC, monospace"`. Latin glyphs render in their original face; CJK falls through automatically.
+
+### Loading
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+```
+
+### Universal CJK Adjustments
+
+- Line-height: body 1.75–1.85, display 1.15–1.25
+- Letter-spacing: 0 on CJK
+- Text-transform: no uppercase on CJK
+- Full-width punctuation （，。：；！？「」（））
+- No period on display headlines (Chinese typography convention)
+- Pangu spacing 盘古之白 (space between CJK and Latin: `使用 Claude` not `使用Claude`)
+- One font per sentence
+
+### Aesthetic Notes for This System
+
+Pink Script (After Hours) is a nocturnal couture system whose entire editorial identity is DM Serif Display at extreme sizes (up to 600px) in hot fuchsia pink. The closest Chinese equivalent on CDN is **站酷小薇体 ZCOOL XiaoWei** — a single-weight elegant serif-influenced display face with high stroke contrast, thin verticals, and a couture-magazine register. XiaoWei at large sizes (220–540px) reads as a Chinese fashion-editorial title page, which is precisely the system's target aesthetic.
+
+The pink halo text-shadow (`{components.pink-glow}` at 80–120px blur) transfers perfectly to Chinese characters. **Apply the same glow to every Chinese display moment in pink** — the neon bleed effect is script-agnostic and the late-night magazine atmosphere survives the script switch fully.
+
+The pink color (`{colors.pink}` — #ED3D8C) as the only chromatic accent works unchanged. The inline `<em>` color switch (paper-blush headline with one word in pink) is a clean transfer to Chinese — wrap one CJK character or one phrase in `<em>` and the pink ink switch reads exactly the same.
+
+**Inter at weight 300 for body** does not transfer directly. Noto Serif SC at weight 400 is the recommended body face — its high-contrast serif stroke matches the couture register of the system's overall feel, and it reads as more editorial than Noto Sans SC against the dark warm-black surface. Body color stays paper-blush (`{colors.paper-blush}`); the ultra-light register is achieved through size, paper-blush color, and the muted 55%-opacity lead, not through font weight.
+
+JetBrains Mono uppercase tracked labels (runner brand, page numbers, footer chrome) do not transfer to CJK. Pure Latin chrome strings (the brand name itself, edition numbers like `01 / 09`) keep JetBrains Mono. For Chinese chrome text (a section / chapter tag in the upper-right), use Noto Sans SC 400 at the same 24px size with letter-spacing reset to 0 and no uppercase.
+
+The radial-gradient surface, the film-grain overlay, the 1px paper-blush interior frame — all script-agnostic. The pink halo, the kicker, the callout rail, the stat-row pattern, the matrix-cell — all transfer unchanged.
+
+### Known CJK Gap
+
+ZCOOL XiaoWei has only one weight (400), as does DM Serif Display. The system's reliance on size alone for hierarchy (rather than weight) translates perfectly. However, **XiaoWei's stroke contrast is more pronounced than DM Serif Display's** — at section-divider sizes (600px), Chinese headlines may feel more delicate than their Latin counterparts. The pink halo glow compensates for this; the bleed of the glow around thin Chinese strokes actually emphasizes the couture register rather than diminishing it.
+
 ## Iteration Guide
 
 1. Every new slide background is the lit radial gradient (`{components.slide-surface}`) with film grain and the interior hairline frame. Don't skip any of the three layers.

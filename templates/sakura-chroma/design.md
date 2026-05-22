@@ -535,6 +535,62 @@ The system targets `100vw × 100vh` and uses `clamp()` throughout with `min(Xvw,
 ### Print Behavior
 No `@media print` rule is defined.
 
+## CJK & International Content
+
+### Recommended Chinese Pairing
+
+| Role | Latin | Chinese | Weight mapping |
+|---|---|---|---|
+| Display / Headline / Statement / Hero numeral / Card name / Seal / Stamp / Lockup | Big Shoulders Display (900) | **站酷小薇体 ZCOOL XiaoWei** | regular (single weight) |
+| Body / Body-md / Body-emphasis / Micro labels | Albert Sans (400 / 600 / 700) | **霞鹜文楷 LXGW WenKai** | regular |
+| Tabular / Spec rows / Chips / Page numbers / Mono labels | JetBrains Mono (400 / 500) | **霞鹜文楷 LXGW WenKai** (or keep mono Latin-only for spec rows) | regular |
+| Japanese accents | Noto Sans JP | *(unchanged)* | 500 / 700 |
+
+### Mixed-Content Strategy
+
+**Strategy A — display CJK + body CJK, each with its own character.** The cassette-package aesthetic is feminine-floral with industrial discipline, and the Chinese pairing should honor both halves. **ZCOOL XiaoWei (站酷小薇体)** is a graceful condensed display face with elegant high-contrast strokes — it echoes Big Shoulders Display's condensed verticality while carrying a softer, distinctly feminine voice that matches the petal-cluster decorative system. **LXGW WenKai (霞鹜文楷)** is a warm KaiTi-style body face based on Fontworks Klee — it has the friendly hand-curated quality that matches Albert Sans's role as the body voice, and reads beautifully at small sizes against the warm cream paper. Together the two CJK faces preserve the "industrial display + warm body" rhythm of the Latin system while landing the Chinese deck in a distinctly hand-curated, slightly-feminine register that suits Sakura Chroma's name and its floral motifs.
+
+### Loading
+
+```html
+<link href="https://chinese-fonts-cdn.deno.dev/packages/zcool-xiaowei/dist/ZCOOLXiaoWei-Regular/result.css" rel="stylesheet">
+<link href="https://chinese-fonts-cdn.deno.dev/packages/lxgwwenkai/dist/LXGWWenKai-Regular/result.css" rel="stylesheet">
+```
+
+Then append the CJK families to the appropriate font stacks:
+```css
+/* Display roles */
+font-family: 'Big Shoulders Display', 'ZCOOL XiaoWei', sans-serif;
+/* Body / micro roles */
+font-family: 'Albert Sans', 'LXGW WenKai', sans-serif;
+/* Mono roles (if used for CJK content) */
+font-family: 'JetBrains Mono', 'LXGW WenKai', ui-monospace, monospace;
+```
+
+### Universal CJK Adjustments
+
+- Line-height: body 1.75–1.85, display 1.15–1.25
+- Letter-spacing: 0 on CJK
+- Text-transform: no uppercase on CJK
+- Full-width punctuation
+- No period on display headlines
+- Pangu spacing (盘古之白): `使用 Claude` not `使用Claude`
+- One font per sentence
+
+### Aesthetic Notes for This System
+
+- **The negative tracking on Big Shoulders display (-0.012em to -0.025em) must drop to 0** on CJK. ZCOOL XiaoWei is already a condensed face; negative tracking will collide glyphs.
+- **The tracked-caps micro-labels (0.16em, 0.2em, 0.32em) have no CJK equivalent.** Drop tracking to 0 for CJK micro-labels and let the warm-brown ink color + bold weight carry the categorical-label signal. A "限定版 LIMITED EDITION" eyebrow can mix CJK + Latin in the same label — keep tracking 0 on the CJK characters and 0.16em+ on the Latin.
+- **Inline `<em>` color shifts (to red or blue) work identically in CJK** — color emphasis is glyph-agnostic and lands beautifully on ZCOOL XiaoWei display headlines.
+- **Petal clusters, ribbon bands, starburst seals, and red rectangular stamps are all glyph-agnostic** — they carry the system's industrial-catalogue voice equally well behind Chinese content.
+- **The 32-point starburst seal carrying a 2–4 character glyph** works exceptionally well with a single Chinese character (限, 新, 季) at ZCOOL XiaoWei in `{colors.paper}` cream. The bold display weight makes the central glyph read as a maker's mark.
+- **Spec rows in JetBrains Mono** present the trickiest decision: pure-Latin spec rows (`44.1 KHZ`, `LP / 33⅓`) preserve the catalogue conceit; localized spec rows in LXGW WenKai (`立体声`, `限定版`) read as a Chinese-market catalogue but lose the technical-spec voice. The right move is **mixed-language spec rows where Latin values stay mono and Chinese descriptors switch to LXGW WenKai inline.**
+- **Noto Sans JP accents (限定版) remain unchanged** — Japanese characters share glyphs with Simplified Chinese in many cases but the Noto Sans JP rendering is intentional (Japanese-edition affect). On a Chinese-primary deck, swap to LXGW WenKai for these characters so they read as Chinese rather than as a Japanese loan.
+
+### Known CJK Gap
+
+ZCOOL XiaoWei is a single-weight face — there is no 900-equivalent. The Big Shoulders 900-weight loudness that defines the Latin display voice cannot be exactly matched. Compensate by reserving CJK display for moments where the soft elegance is welcome (cover spreads, quote slides) rather than where pure brutalist weight is needed (hero stats). For hero numerals, keep the figures in Latin numerals at Big Shoulders 900 — Chinese numerals (一二三四) don't carry the catalogue-cover statistical voice anyway.
+
 ## Iteration Guide
 
 1. Every new content slide carries the paper-grain halftone-dot texture, a frame-inset region (36–72px from edges, 72–110px from bottom), and a page number at bottom-right.
