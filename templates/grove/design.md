@@ -202,6 +202,17 @@ components:
     description: "Small white dots at the bottom of the viewport indicating slide position. The fixed counter (#slide-counter) is intentionally disabled — the slide-foot already shows NN / TT."
 ---
 
+## Frontend Slides Fixed-Stage Policy
+
+When this design system is used by the `frontend-slides` skill, generate the final deck as a **fixed 1920×1080 stage** that scales uniformly to the browser viewport. The deck should preserve a 16:9 slide canvas on every screen, including phones; it may letterbox or pillarbox, but it should not reflow slide content for mobile.
+
+This policy has higher priority than any source-template responsive behavior described later in this file. If a later section says the original template is viewport-fluid, treat that as source history only, not as the target generation model for `frontend-slides`.
+
+This policy applies even if the source template was originally implemented with viewport-fluid CSS such as `100vw`, `100vh`, `vw`, `vh`, or `clamp()`. Treat those values as design proportions to translate into 1920×1080 stage coordinates, not as live responsive rules in the generated deck.
+
+Use `deck-stage.js` or an equivalent inline stage scaler for final output: render each slide at 1920×1080, scale the whole stage with one transform, and verify rendered screenshots for both text overflow and panel overlap.
+
+
 ## Overview
 
 Grove is a **quiet, editorial-serif presentation system** in the register of a literary monograph or boutique brand book. The foundational premise is restraint: every slide carries one focused content moment surrounded by deep negative space, anchored by thin 1px chrome bars at top and bottom and supported by a small library of compositional beats (coral kicker, 36px coral rule, italic-coral accent, em-dash bullet, near-invisible watermark numeral).
@@ -521,17 +532,17 @@ The watermark numeral (18vw, 6% opacity) is particularly effective in Chinese �
 
 The system's signature `<em>` italic-coral treatment is the hardest piece to translate: **Chinese has no italic concept** — slanted Han glyphs read as broken, not as emphasis. The current Grove CSS depends on the browser's default `<em>` styling (italic) plus a CSS color rule for the coral. In Chinese, the italic does nothing visually, so the emphasis collapses to "just coral text inside a headline." That's not bad — coral inside an LXGW WenKai headline still reads as a deliberate accent — but the system loses one of its two emphasis dimensions (color + slant) and is left with only color.
 
-To compensate, two options: (1) accept color-only emphasis on Chinese headlines and let the coral carry the weight, or (2) switch the `<em>` portion to a different face inside Chinese headlines — e.g., **站酷小薇体 (ZCOOL XiaoWei)** — to provide a face-based contrast that approximates the slant contrast of Latin italic. Add to the CSS:
+**Use color-only emphasis on Chinese headlines** — let the coral carry the weight on its own. Mid-sentence face switching is not a Chinese typographic convention; even if the slant-contrast feels missing, swapping CJK glyphs to a different face inside the same headline reads as inconsistency rather than as intentional editorial emphasis. The right rule:
 
 ```css
 .h1 em, .h2 em, .h3 em, .quote-text em {
-  color: var(--c-accent);
-  font-family: 'Playfair Display', 'ZCOOL XiaoWei', 'LXGW WenKai TC', serif;
-  font-style: italic; /* Latin renders italic; CJK ignores */
+  color: var(--c-accent);  /* coral — works in Latin and CJK */
+  font-style: italic;       /* renders italic in Latin; ignored by CJK glyphs */
+  /* deliberately no font-family switch — preserves "one font per sentence" in CJK */
 }
 ```
 
-This gives the Latin portion italic-coral and the CJK portion face-shift-coral. Test on a per-deck basis — for many Grove decks, color-only emphasis is sufficient.
+The Latin portion gets italic-coral; the CJK portion gets just-coral. In practice, for Chinese-majority headlines the coral alone is sufficient — and if you want a second emphasis dimension on Chinese, reach for weight (400 → 700) rather than a face swap.
 
 ## Iteration Guide
 

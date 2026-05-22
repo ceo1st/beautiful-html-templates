@@ -322,6 +322,17 @@ components:
     description: "A three-line stacked title where each line is a Shrikhand display element at a slightly different size. Two of the three lines carry rotation transforms (-4deg, +2deg) and one is set in red. The composition is the system's signature opener."
 ---
 
+## Frontend Slides Fixed-Stage Policy
+
+When this design system is used by the `frontend-slides` skill, generate the final deck as a **fixed 1920×1080 stage** that scales uniformly to the browser viewport. The deck should preserve a 16:9 slide canvas on every screen, including phones; it may letterbox or pillarbox, but it should not reflow slide content for mobile.
+
+This policy has higher priority than any source-template responsive behavior described later in this file. If a later section says the original template is viewport-fluid, treat that as source history only, not as the target generation model for `frontend-slides`.
+
+This policy applies even if the source template was originally implemented with viewport-fluid CSS such as `100vw`, `100vh`, `vw`, `vh`, or `clamp()`. Treat those values as design proportions to translate into 1920×1080 stage coordinates, not as live responsive rules in the generated deck.
+
+Use `deck-stage.js` or an equivalent inline stage scaler for final output: render each slide at 1920×1080, scale the whole stage with one transform, and verify rendered screenshots for both text overflow and panel overlap.
+
+
 ## Overview
 
 Bold Poster is a **populist editorial poster system** that lifts its visual vocabulary from vintage Italian sports magazines, mid-century European brand annual reports, and wine-merchant catalogues. The premise is that every slide should feel printed — set in heavy display type, locked to one strong red accent, on a white or off-white sheet, with grids ruled in ink and decoration kept to a strict minimum.
@@ -667,7 +678,7 @@ Add to the template's `<head>`:
 
 The system's identity rests on **Shrikhand's chunky slab-script personality + rotation + saturated red**. Shrikhand is the most distinctive single decision in this template — and it has no Chinese equivalent. 思源宋体 weight 900 carries weight and editorial register but loses the playful italic-leaning slab character entirely. Compensate by **leaning harder on the non-typographic signatures**: keep all rotations intact (-6° on stat-big, -5° on close-big, -4° on hero-title-red, +2° on hero-title-bottom), keep the stacked text-shadow on red-panel display, keep the saturated tomato red as the only accent, keep the 3px + 1.5px double-border tabular grids, keep the red leftbar cards, keep the red em-dash bullet markers. The rotation, red, and printed-newsprint structural language survive the face swap.
 
-The system's three-face role discipline (Shrikhand display / Libre Baskerville body / Space Grotesk chrome) collapses to a two-face system in CJK: 思源宋体 for everything Latin-serif, 思源黑体 for everything Latin-mono. The body-vs-display contrast becomes pure weight (400 vs 900) plus color (dark vs red). For inline `<strong>` emphasis inside body, switch from 思源宋体 400 to 思源黑体 600 — the change-of-face is what signals emphasis in the Latin original, and the serif-to-sans swap preserves the same logic in CJK.
+The system's three-face role discipline (Shrikhand display / Libre Baskerville body / Space Grotesk chrome) collapses to a two-face system in CJK: 思源宋体 for everything Latin-serif, 思源黑体 for everything Latin-mono. The body-vs-display contrast becomes pure weight (400 vs 900) plus color (dark vs red). **Do not switch faces mid-sentence in CJK content** — even for `<strong>` emphasis. Mid-sentence face switching reads as broken in Chinese typography (it parses as inconsistency, not editorial contrast). For inline `<strong>` emphasis in Chinese body text, stay in 思源宋体 and use weight contrast (400 → 700) or color contrast (dark → red accent) instead. Save the face-swap signal for role boundaries (heading vs body, body vs label), where it reads as hierarchy rather than noise.
 
 ### Known CJK Gap
 

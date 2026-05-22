@@ -285,6 +285,17 @@ components:
     background: "{colors.burgundy}"
 ---
 
+## Frontend Slides Fixed-Stage Policy
+
+When this design system is used by the `frontend-slides` skill, generate the final deck as a **fixed 1920×1080 stage** that scales uniformly to the browser viewport. The deck should preserve a 16:9 slide canvas on every screen, including phones; it may letterbox or pillarbox, but it should not reflow slide content for mobile.
+
+This policy has higher priority than any source-template responsive behavior described later in this file. If a later section says the original template is viewport-fluid, treat that as source history only, not as the target generation model for `frontend-slides`.
+
+This policy applies even if the source template was originally implemented with viewport-fluid CSS such as `100vw`, `100vh`, `vw`, `vh`, or `clamp()`. Treat those values as design proportions to translate into 1920×1080 stage coordinates, not as live responsive rules in the generated deck.
+
+Use `deck-stage.js` or an equivalent inline stage scaler for final output: render each slide at 1920×1080, scale the whole stage with one transform, and verify rendered screenshots for both text overflow and panel overlap.
+
+
 ## Overview
 
 Editorial Tri-Tone is a **literary magazine presentation system** built on the strictest possible palette: three hex values, eleven CSS variable names. The naming system reveals editorial intent — `--pink` and `--sky` point at the same blush; `--cream`, `--butter`, `--lime`, and `--terracotta` all resolve to the same golden yellow; `--burgundy`, `--navy`, `--forest`, and `--ink` all collapse to the same deep wine. The aliases exist to communicate the role of the color in context, not to introduce variation.
@@ -521,14 +532,24 @@ font-family: 'Instrument Serif', 'LXGW WenKai TC', serif;
 font-family: 'JetBrains Mono', 'Noto Sans Mono CJK SC', monospace;
 ```
 
-The system's signature `<em>` rule (Bricolage Grotesque → Instrument Serif italic inline) is what carries the editorial tone in Latin. The CJK equivalent: an `<em>` inside a 思源黑体 (Noto Sans SC) headline should switch to **站酷小薇体 (ZCOOL XiaoWei)** — a decorative literary serif with the same softness contrast as Instrument Serif italic. Add a CSS rule:
+The system's signature `<em>` rule (Bricolage Grotesque → Instrument Serif italic inline) carries the editorial tone in Latin **but does not port to Chinese**. Mid-sentence face switching reads as broken in CJK typography — Chinese readers parse it as a typesetting error, not as the intentional editorial contrast that Latin readers parse. When the surrounding sentence is Chinese, **suppress the face-switching part of the em rule** and use color or weight contrast instead:
 
 ```css
-h1 em, h2 em, .lede em, .quote-heading em {
-  font-family: 'Instrument Serif', 'ZCOOL XiaoWei', 'LXGW WenKai TC', serif;
-  font-style: italic; /* Latin only — CJK ignores font-style */
+/* Latin sentences — original em rule applies */
+:lang(en) h1 em, :lang(en) h2 em, :lang(en) .lede em, :lang(en) .quote-heading em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+}
+/* Chinese sentences — emphasize via color or weight, not face */
+:lang(zh) h1 em, :lang(zh) h2 em, :lang(zh) .lede em, :lang(zh) .quote-heading em {
+  font-family: inherit;
+  font-style: normal;
+  color: var(--terracotta); /* or another palette accent */
+  /* optional alternative: font-weight: 700; */
 }
 ```
+
+If the deck has no language-tagged elements, the safer rule is: **don't wrap Chinese phrases in `<em>` at all**. The hierarchy of section sign + headline + body already provides enough emphasis structure in Chinese; the inline-italic accent is a Latin-editorial habit that has no Chinese counterpart. A Chinese sentence reads cleanly when it lives in a single face from start to finish.
 
 Watch for baseline mismatch at display sizes (300–540px): Bricolage Grotesque at -0.04em to -0.06em tracking sits visually tighter than Noto Sans SC, so a mixed-script wordmark like `INTO 中国` may feel uneven. For hero / wordmark moments, prefer single-script lines and let the second script live on its own line below.
 
@@ -554,11 +575,11 @@ These adjustments apply to **every CJK block** in this system, regardless of siz
 - **Use Chinese full-width punctuation** (`，。：；！？「」『』（）`) inside Chinese sentences, not the Latin equivalents (`,.:;!?""''()`). Mixing punctuation systems within one sentence reads as a typesetting error.
 - **No period (。) at the end of CJK headlines.** Chinese headlines follow the same rule as Latin — title-style lines drop terminal punctuation. Body paragraphs keep their 。
 - **Apply Pangu spacing (盘古之白) at the boundary between CJK and Latin runs.** A space (or 0.25em margin) belongs between a Chinese character and an adjacent Latin word or digit, e.g. `2026 年 5 月` not `2026年5月`. Either type the spaces manually or use a `pangu.js`-style auto-spacer.
-- **One font per sentence.** Don't switch between Noto Sans SC, Noto Serif SC, and ZCOOL XiaoWei inside the same sentence — pick the face that matches the role (headline = Noto Sans SC, body = Noto Serif SC, em-accent = ZCOOL XiaoWei) and commit to it for the whole run.
+- **One font per sentence.** Don't switch between Noto Sans SC, Noto Serif SC, and ZCOOL XiaoWei inside the same sentence — pick the face that matches the role (headline = Noto Sans SC, body = Noto Serif SC) and commit to it for the whole run. **This rule overrides the em-rule for Chinese content**: do not switch faces mid-sentence on `<em>` in Chinese, even though the same `<em>` switches face in Latin. For inline emphasis in Chinese, use color (e.g., `var(--terracotta)`) or weight (400 → 700), never face switching.
 
 ### Aesthetic Notes for This System
 
-Editorial Tri-Tone's literary-magazine voice depends on the typographic contrast between Bricolage Grotesque (structural) and Instrument Serif italic (expressive). In Chinese, that same contrast lives in the **思源黑体 ↔ 站酷小薇体** pairing — a clean grotesque set against a literary decorative serif. The em-rule inside headlines should switch from 思源黑体 to **站酷小薇体** specifically (not 霞鹜文楷, which is warmer but less "literary-decorative"); this preserves the typographic mix that defines the system.
+Editorial Tri-Tone's literary-magazine voice depends on the typographic contrast between Bricolage Grotesque (structural) and Instrument Serif italic (expressive). **This contrast does not transfer cleanly to Chinese** because mid-sentence face switching is not a Chinese typographic convention — it reads as inconsistency rather than intentional editorial emphasis. The right adaptation is to preserve face-contrast **at the role level** (headline = 思源黑体, body = 思源宋体, label = mono) rather than inline. Within any single Chinese run, stay in one face. Where Latin would have used `<em>` to flip into Instrument Serif italic, Chinese should use the palette's accent color (terracotta on butter, pink on burgundy, etc.) or a weight bump (400 → 700) for emphasis instead.
 
 For the system's signature display moments — the 300px wordmark, the 540px stat figure, the 240px chapter numeral — Chinese is at its loudest. Reach for **站酷小薇体** when the moment is decorative (a chapter ordinal "第一章" rendered in literary serif) and **思源黑体 weight 700** when the moment is structural (a section headline like "我们的方法"). The 200px quote-mark glyph is harder in Chinese — Chinese quotation marks (「」) don't carry the same decorative weight as Latin 'curly quotes', so consider rendering the entire quote moment in the Latin glyph (using the `Instrument Serif` face on the punctuation character itself) and let the body text below switch to 思源宋体.
 
